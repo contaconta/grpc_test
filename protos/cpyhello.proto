@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package cpyhello;
+
+//service Name = class Name
+service CpyGreeter{
+	//rpc Method name (Return Type) (args Type){}
+	rpc mySayHello (GreeReq) returns (GreeRes){}
+}
+
+// Type Name
+message GreeReq{
+	int32 id=1;
+	string name=2;
+	string message=3;
+}
+
+message GreeRes{
+	string host=1;
+	string message=2;
+}

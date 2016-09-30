@@ -1,0 +1,16 @@
+syntax = "proto3";
+package cvgrpc;
+
+option cc_enable_arenas = true;
+
+service CvGrpcService{
+	rpc convertGaussian (ImgCVMat) returns (ImgCVMat){}
+}
+
+message ImgCVMat{
+	uint32 depth=1;
+	uint32 width=2;
+	uint32 height=3;
+
+	repeated uint32 iarray=4;
+}
