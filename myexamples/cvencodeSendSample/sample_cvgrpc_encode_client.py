@@ -12,7 +12,6 @@ NTIMES=100
 class CvGrpcConverter:
 	
 	def __init__(self):
-		#self.tostTime=0
 		pass
 
 	def convert(self,img):
@@ -22,7 +21,6 @@ class CvGrpcConverter:
 		else:
 			iwidth,iheight=img.shape
 		mess=cvgrpc_bin_pb2.ImgCVMat(depth=idepth,width=iwidth,height=iheight)
-		#MatArray= cv2.imencode(".jpg",img)
 		mess.iarray =cv2.imencode(".jpg",img)[1].tostring()
 		return mess
 
@@ -33,9 +31,6 @@ class CvGrpcConverter:
 		MatArray=np.frombuffer(res.iarray, dtype='uint8')
 		img=cv2.imdecode(MatArray,-1)
 		return img
-
-	#def printTypetime(self):
-		#print "tosttime : "+str(self.tostTime)	
 
 def run(img,addr):
 	con=CvGrpcConverter()
