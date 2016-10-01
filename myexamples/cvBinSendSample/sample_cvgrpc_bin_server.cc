@@ -30,47 +30,47 @@ public:
 		int depth;
 		switch(srcmat.type()){
 			case CV_8UC1:
-				depth=1;
+				depth = 1;
 				break;
 			case CV_8UC3:
-				depth=3;
+				depth = 3;
 				break;
 		}
 		std::string buffer(depth*size.width*size.height, ' ');
-		char* buf_ptr=&buffer[0];
-		for(int i=0;i<size.height;i++){
-			auto mat_ptr=srcmat.ptr<unsigned char>(i);
-			for(int j=0;j<size.width*depth;j++){
-				*buf_ptr=static_cast<unsigned char>(*mat_ptr);
+		char* buf_ptr = &buffer[0];
+		for(int i=0; i < size.height; i++){
+			auto mat_ptr = srcmat.ptr<unsigned char>(i);
+			for(int j = 0; j < size.width * depth; j++){
+				*buf_ptr = static_cast<unsigned char>(*mat_ptr);
 				buf_ptr++;
 				mat_ptr++;
 			}
 		}
-		output->set_iarray(buffer);
-		output->set_depth((uint32_t)depth);
-		output->set_width((uint32_t)size.width);
-		output->set_height((uint32_t)size.height);
+		output -> set_iarray(buffer);
+		output -> set_depth((uint32_t)depth);
+		output -> set_width((uint32_t)size.width);
+		output -> set_height((uint32_t)size.height);
 	}
 
 	
 	static void converttoMat(OutputArray dst,const ImgCVMat* input){
-		int vecsize=input->width() * input->height();
-		int totalsize=input->depth() * vecsize;
+		int vecsize = input -> width() * input -> height();
+		int totalsize = input -> depth() * vecsize;
 		unsigned char matBaseData[totalsize];
 		Mat matdst;
 
-		unsigned char* ptr_mat=matBaseData;
-		auto imgary=input->iarray();
+		unsigned char* ptr_mat = matBaseData;
+		auto imgary = input->iarray();
 
-		for(auto it=imgary.begin();it!=imgary.end();++it){
-			*ptr_mat=(unsigned char)*it;
+		for(auto it = imgary.begin(); it != imgary.end(); ++it){
+			*ptr_mat = (unsigned char)*it;
 			ptr_mat++;
 		}
 
-		if(input->depth()==3){
-			matdst=Mat(input->width(), input->height(), CV_8UC3, matBaseData);
+		if(input -> depth() == 3){
+			matdst = Mat(input->width(), input->height(), CV_8UC3, matBaseData);
 		}else{
-			matdst=Mat(input->width(), input->height(), CV_8UC1, matBaseData);
+			matdst = Mat(input->width(), input->height(), CV_8UC1, matBaseData);
 		}
 		
 		matdst.copyTo(dst);
@@ -86,40 +86,40 @@ class CVGrpcServer final : public CvGrpcService::Service
 		Mat img;
 
 		processCount++;
-		auto start=std::chrono::system_clock::now();
+		auto start = std::chrono::system_clock::now();
 		CvGrpcConverter::converttoMat(img,req);
-		auto end=std::chrono::system_clock::now();
-		convertTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		auto end = std::chrono::system_clock::now();
+		convertTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		
 		//std::cerr<<"filter start"<<std::endl;
-		start=std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		GaussianBlur( img, img, Size( KERNEL_LENGTH, KERNEL_LENGTH ),0);
-		end=std::chrono::system_clock::now();
-		proccessingTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		end = std::chrono::system_clock::now();
+		proccessingTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		//std::cerr<<"filter end"<<std::endl;
 
-		start=std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		CvGrpcConverter::deconvertfromMat(img,res);
-		end=std::chrono::system_clock::now();
-		deconvertTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		end = std::chrono::system_clock::now();
+		deconvertTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		// evaluation	
-		if(processCount>=NTIMES){
-			std::cerr<<"Total gaussian Time : "<<proccessingTime/1000<<" s"<<
-				" Total convert time : "<<convertTime/1000<<" s"<<
-				" Total deconvert time : "<<deconvertTime/1000<<" s"<<
+		if(processCount >= NTIMES){
+			std::cerr << "Total gaussian Time : " << proccessingTime / 1000 << " s" <<
+				" Total convert time : " << convertTime/1000 << " s" <<
+				" Total deconvert time : " << deconvertTime/1000 << " s" <<
 				std::endl;
-			processCount=0;
-			proccessingTime=0;
-			convertTime=0;
-			deconvertTime=0;
+			processCount = 0;
+			proccessingTime = 0;
+			convertTime = 0;
+			deconvertTime = 0;
 		}
 		return Status::OK;
 	}
 //evaluation
 private:
-	double proccessingTime=0,convertTime=0,deconvertTime=0;
-	int processCount=0;
-	const int NTIMES=100; 
+	double proccessingTime = 0, convertTime = 0, deconvertTime = 0;
+	int processCount = 0;
+	const int NTIMES = 100; 
 };
 
 
@@ -139,7 +139,7 @@ void RunServer() {
 
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
-  server->Wait();
+  server -> Wait();
 }
 
 int main(int argc, char** argv) {

@@ -28,27 +28,27 @@ public:
 		int depth;
 		switch(srcmat.type()){
 			case CV_8UC1:
-				depth=1;
+				depth = 1;
 				break;
 			case CV_8UC3:
-				depth=3;
+				depth = 3;
 				break;
 		}
 		std::vector<unsigned char> matvec;
 		imencode(".jpg",srcmat,matvec);
-		std::string buffer(reinterpret_cast<char*>(&matvec[0]),matvec.size());
-		output->set_iarray(buffer);
-		output->set_depth((uint32_t)depth);
-		output->set_width((uint32_t)size.width);
-		output->set_height((uint32_t)size.height);
+		std::string buffer(reinterpret_cast<char*>(&matvec[0]), matvec.size());
+		output -> set_iarray(buffer);
+		output -> set_depth((uint32_t)depth);
+		output -> set_width((uint32_t)size.width);
+		output -> set_height((uint32_t)size.height);
 	}
 
 	
 	static Mat converttoMat(const ImgCVMat* input){
-		int vecsize=input->width() * input->height();
-		int totalsize=input->depth() * vecsize;
-		std::vector<char> matvec(input->iarray().c_str(), input->iarray().c_str()+input->iarray().size());
-  		return cv::imdecode(matvec,-1);
+		int vecsize=input -> width() * input -> height();
+		int totalsize=input -> depth() * vecsize;
+		std::vector<char> matvec(input -> iarray().c_str(), input -> iarray().c_str()+input->iarray().size());
+  		return cv::imdecode(matvec, -1);
 	}
 };
 
@@ -60,40 +60,40 @@ class CVGrpcServer final : public CvGrpcService::Service
 		Mat img;
 
 		processCount++;
-		auto start=std::chrono::system_clock::now();
-		img=CvGrpcConverter::converttoMat(req);
-		auto end=std::chrono::system_clock::now();
-		convertTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		auto start = std::chrono::system_clock::now();
+		img = CvGrpcConverter::converttoMat(req);
+		auto end = std::chrono::system_clock::now();
+		convertTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		
 		//std::cerr<<"filter start"<<std::endl;
-		start=std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		GaussianBlur( img, img, Size( KERNEL_LENGTH, KERNEL_LENGTH ),0);
-		end=std::chrono::system_clock::now();
-		proccessingTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		end = std::chrono::system_clock::now();
+		proccessingTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		//std::cerr<<"filter end"<<std::endl;
 
-		start=std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		CvGrpcConverter::deconvertfromMat(img,res);
-		end=std::chrono::system_clock::now();
-		deconvertTime+=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+		end = std::chrono::system_clock::now();
+		deconvertTime += std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
 		// evaluation
-		if(processCount>=NTIMES){
-			std::cerr<<"Total gaussian Time : "<<proccessingTime/1000<<" s"<<
-				" Total convert time : "<<convertTime/1000<<" s"<<
-				" Total deconvert time : "<<deconvertTime/1000<<" s"<<
+		if(processCount >= NTIMES){
+			std::cerr << "Total gaussian Time : " << proccessingTime / 1000 << " s"<<
+				" Total convert time : " << convertTime / 1000 << " s" <<
+				" Total deconvert time : " << deconvertTime / 1000 << " s" <<
 				std::endl;
-			processCount=0;
-			proccessingTime=0;
-			convertTime=0;
-			deconvertTime=0;
+			processCount = 0;
+			proccessingTime = 0;
+			convertTime = 0;
+			deconvertTime = 0;
 		}
 		return Status::OK;
 	}
 //evaluation
 private:
-	double proccessingTime=0,convertTime=0,deconvertTime=0;
-	int processCount=0;
-	const int NTIMES=100; 
+	double proccessingTime = 0, convertTime = 0, deconvertTime = 0;
+	int processCount = 0;
+	const int NTIMES = 100; 
 };
 
 

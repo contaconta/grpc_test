@@ -15,38 +15,38 @@ class CvGrpcConverter:
 		pass
 
 	def convert(self,img):
-		idepth=img.ndim
-		if idepth==3:
-			iwidth,iheight,idepth=img.shape
+		idepth = img.ndim
+		if idepth == 3:
+			iwidth, iheight, idepth = img.shape
 		else:
-			iwidth,iheight=img.shape
-		mess=cvgrpc_bin_pb2.ImgCVMat(depth=idepth,width=iwidth,height=iheight)
+			iwidth, iheight = img.shape
+		mess = cvgrpc_bin_pb2.ImgCVMat(depth = idepth, width = iwidth, height = iheight)
 		mess.iarray = img.tostring()
 		return mess
 
 	def deconvert(self,res):
-		idepth=res.depth
-		iwidth=res.width
-		iheight=res.height
-		MatArray=np.frombuffer(res.iarray, dtype='uint8')
-		if idepth==3:
-			img=MatArray.reshape(iheight,iwidth,idepth)
+		idepth = res.depth
+		iwidth = res.width
+		iheight = res.height
+		MatArray = np.frombuffer(res.iarray, dtype='uint8')
+		if idepth == 3:
+			img = MatArray.reshape(iheight, iwidth, idepth)
 		else:
-			img=MatArray.reshape(iheight,iwidth)
+			img = MatArray.reshape(iheight, iwidth)
 		return img
 
 def run(img,addr):
-	con=CvGrpcConverter()
+	con = CvGrpcConverter()
 	channel = grpc.insecure_channel(addr+':50051')
 	print "connect"
 	stub=cvgrpc_bin_pb2.CvGrpcServiceStub(channel)
 	for i in range(0,NTIMES):
-		reqMess=con.convert(img)
+		reqMess = con.convert(img)
 		#print "send req"
-		res=stub.convertGaussian(reqMess)
+		res = stub.convertGaussian(reqMess)
 		#print "recv res"
-		img=con.deconvert(res)
-	processedImg=img
+		img = con.deconvert(res)
+	processedImg = img
 	return processedImg
 
 if __name__ == '__main__':
